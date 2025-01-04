@@ -1,0 +1,16 @@
+{
+  "scripts": [
+    {
+      "name": "script1.sh",
+      "enabled": true,
+      "args": ["arg1", "arg2"],
+      "frequency": "*/15 * * * * *"
+    },
+    {
+      "name": "script2.sh",
+      "enabled": true,
+      "args": ["arg1"],
+      "frequency": "*/10 * * * * *"
+    }
+  ]
+}

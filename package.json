@@ -1,0 +1,17 @@
+{
+  "name": "node-agent",
+  "version": "1.0.0",
+  "description": "Node.js-based agent application for executing scripts.",
+  "main": "src/agent.js",
+  "scripts": {
+    "test": "jest tests/"
+  },
+  "dependencies": {
+    "node-cron": "^3.0.0"
+  },
+  "devDependencies": {
+    "jest": "^27.0.0"
+  },
+  "author": "",
+  "license": "ISC"
+}
