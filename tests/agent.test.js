@@ -1,48 +1,98 @@
 const fs = require('fs');
 const path = require('path');
-const { exec } = require('child_process');
+const { executeScript, cleanup } = require('../src/agent'); // Adjust the import based on your structure
 
-// Mock the exec function
-jest.mock('child_process');
+// Helper function to generate a random string
+function generateRandomString(length) {
+    return Math.random().toString(36).substring(2, length + 2);
+}
+
+function getAbsolutePath(name) {
+    return path.join(__dirname, `../src/scripts/${name}`)
+}
+
+// Helper function to create example files with random names
+function createExampleFiles() {
+    const randomSuffix = generateRandomString(5);
+    // add file name file too?
+    const exampleFiles = [
+        {
+            name: randomSuffix + '.js',
+            content: 'console.log("Script 3 executed at " + new Date().toISOString());'
+        },
+        {
+            name: randomSuffix + '.py',
+            content: 'import datetime\nprint("Example Python script executed at " + str(datetime.datetime.now()))'
+        },
+        {
+            name: randomSuffix + '.sh',
+            content: '#!/bin/bash\necho "Script 1 executed"'
+        }
+    ];
+
+    exampleFiles.forEach(file => {
+        const path = getAbsolutePath(file.name);
+        fs.writeFileSync(path, file.content);
+        fs.chmodSync(path, '755'); // Make shell script executable
+    });
+
+    return exampleFiles.map(file => file.name); // Return the names for cleanup
+}
+
+// Helper function to delete example files
+function deleteExampleFiles(exampleFiles) {
+    exampleFiles.forEach(file => {
+        const path = getAbsolutePath(file);
+        if (fs.existsSync(path)) {
+            fs.unlinkSync(path);
+        }
+    });
+}
 
 describe('Agent Script Execution', () => {
-    const scriptPath = path.join(__dirname, 'scripts', 'script1.sh');
+    let exampleFiles;
 
-    beforeEach(() => {
-        jest.clearAllMocks();
+    beforeAll(() => {
+        exampleFiles = createExampleFiles(); // Create necessary example files
     });
 
-    test('should execute script1.sh with arguments', (done) => {
-        const args = ['arg1', 'arg2'];
-        const logFile = path.join(__dirname, 'logs', 'script1.sh.log');
-
-        // Mock the exec function to simulate script execution
-        exec.mockImplementation((command, callback) => {
-            callback(null, 'Script 1 executed with arguments: arg1 arg2', '');
-        });
-
-        // Simulate the execution of the script
-        exec(`bash ${scriptPath} ${args.join(' ')}`, (error, stdout, stderr) => {
-            expect(stdout).toBe('Script 1 executed with arguments: arg1 arg2');
-            expect(error).toBeNull();
-            done();
-        });
+    afterAll(() => {
+        cleanup(); // Call cleanup to stop all scheduled tasks
+        deleteExampleFiles(exampleFiles); // Delete example files after tests
     });
 
-    test('should log error when script execution fails', (done) => {
-        const args = ['arg1'];
-        const logFile = path.join(__dirname, 'logs', 'script1.sh.log');
+    test('should handle unsupported file format', async () => {
+        const unsupportedScript = 'unsupported_file.txt';
+        await expect(executeScript(unsupportedScript, []))
+            .rejects
+            .toThrow(`Unsupported file format: ${unsupportedScript}`);
+    });
 
-        // Mock the exec function to simulate an error
-        exec.mockImplementation((command, callback) => {
-            callback(new Error('Execution failed'), '', 'Error output');
-        });
+    test('should execute JavaScript file successfully', async () => {
+        const script = exampleFiles.find(file => file.endsWith('.js')); // Get the random JS file
+        await expect(executeScript(script, []))
+            .resolves
+            .toBeDefined();
+    });
 
-        // Simulate the execution of the script
-        exec(`bash ${scriptPath} ${args.join(' ')}`, (error, stdout, stderr) => {
-            expect(error).toBeInstanceOf(Error);
-            expect(error.message).toBe('Execution failed');
-            done();
-        });
+    test('should execute Python file successfully', async () => {
+        const script = exampleFiles.find(file => file.endsWith('.py')); // Get the random Python file
+        await expect(executeScript(script, []))
+            .resolves
+            .toBeDefined();
+    });
+
+    test('should execute shell script successfully', async () => {
+        const script = exampleFiles.find(file => file.endsWith('.sh')); // Get the random shell script
+        await expect(executeScript(script, []))
+            .resolves
+            .toBeDefined();
+    });
+
+    test('should log error for failed script execution', async () => {
+        const failingScript = 'failing_script.js'; // Ensure this script exists and is invalid
+        await expect(executeScript(failingScript, []))
+            .rejects
+            .toThrow();
     });
 });

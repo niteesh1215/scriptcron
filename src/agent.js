@@ -7,9 +7,25 @@ const cron = require('node-cron');
 const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 
 // Create logs directory if it doesn't exist
-const logsDir = path.join(__dirname, 'logs');
+const logsDir = path.join(__dirname, '../logs');
 if (!fs.existsSync(logsDir)) {
     fs.mkdirSync(logsDir);
+}
+
+// Function to get current timestamp
+function getCurrentTimestamp() {
+    return new Date().toISOString();
+}
+
+// Asynchronous logging function
+function logMessage(message) {
+    const logFile = path.join(logsDir, 'agent.log');
+    const logEntry = JSON.stringify({ timestamp: getCurrentTimestamp(), message }) + '\n';
+    fs.appendFile(logFile, logEntry, (err) => {
+        if (err) {
+            console.error('Failed to write log:', err);
+        }
+    });
 }
 
 // Function to execute scripts
@@ -17,48 +33,74 @@ function executeScript(script, args) {
     return new Promise((resolve, reject) => {
         const scriptPath = path.join(__dirname, 'scripts', script);
         const logFile = path.join(logsDir, `${script}.log`);
-        const command = `bash ${scriptPath} ${args.join(' ')}`;
+        const isJavaScript = script.endsWith('.js');
+        const isPython = script.endsWith('.py');
+        const isShell = script.endsWith('.sh');
+
+        if (!isJavaScript && !isPython && !isShell) {
+            const errorMessage = `Unsupported file format: ${script}`;
+            logMessage(errorMessage);
+            return reject(new Error(errorMessage));
+        }
+
+        const command = isJavaScript ? `node ${scriptPath}` : isPython ? `python ${scriptPath}` : `bash ${scriptPath}`;
 
         const logStream = fs.createWriteStream(logFile, { flags: 'a' });
-        logStream.write(`Executing: ${command}\n`);
+
+        const logEntry = (message) => {
+            logStream.write(JSON.stringify({ timestamp: getCurrentTimestamp(), message }) + '\n');
+        };
+
+        logEntry(`Executing: ${command}`);
 
         const child = exec(command, (error, stdout, stderr) => {
             if (error) {
-                logStream.write(`Error: ${error.message}\n`);
+                logEntry(`Error: ${error.message}`);
                 reject(error);
             }
             if (stderr) {
-                logStream.write(`stderr: ${stderr}\n`);
+                logEntry(`stderr: ${stderr}`);
             }
-            logStream.write(`stdout: ${stdout}\n`);
+            logEntry(`stdout: ${stdout}`);
             logStream.end(); // Close the log stream here
             resolve(stdout);
         });
 
         child.stdout.on('data', (data) => {
-            logStream.write(data);
+            logEntry(data);
         });
 
         child.stderr.on('data', (data) => {
-            logStream.write(data);
+            logEntry(data);
         });
     });
 }
 
 // Schedule tasks based on configuration
+const scheduledTasks = [];
 config.scripts.forEach(scriptConfig => {
     if (scriptConfig.enabled) {
         try {
-            console.log(`Scheduling ${scriptConfig.name} with frequency: ${scriptConfig.frequency}`);
-            cron.schedule(scriptConfig.frequency, () => {
+            logMessage(`Scheduling ${scriptConfig.name} with frequency: ${scriptConfig.frequency}`);
+            const task = cron.schedule(scriptConfig.frequency, () => {
                 executeScript(scriptConfig.name, scriptConfig.args)
-                    .then(output => console.log(`Executed ${scriptConfig.name} successfully.`))
-                    .catch(err => console.error(`Failed to execute ${scriptConfig.name}: ${err.message}`));
+                    .then(output => logMessage(`Executed ${scriptConfig.name} successfully.`))
+                    .catch(err => logMessage(`Failed to execute ${scriptConfig.name}: ${err.message}`));
             });
+            scheduledTasks.push(task);
         } catch (error) {
-            console.error(`Error scheduling ${scriptConfig.name}: ${error.message}`);
+            logMessage(`Error scheduling ${scriptConfig.name}: ${error.message}`);
         }
     }
 });
 
 console.log('Agent is running...');
+
+// Cleanup function to stop all scheduled tasks
+function cleanup() {
+    scheduledTasks.forEach(task => task.stop());
+    logMessage('All scheduled tasks have been stopped.');
+}
+
+// Export the executeScript function and cleanup function
+module.exports = { executeScript, cleanup };
