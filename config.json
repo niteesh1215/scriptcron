@@ -1,22 +1,29 @@
 {
   "scripts": [
     {
-      "name": "script1.sh",
+      "path": "script1.sh",
       "enabled": true,
       "args": ["arg1", "arg2"],
-      "frequency": "*/5 * * * *"
+      "frequency": "*/5 * * * * *",
+      "logSettings":{
+        "filenamePrefix": "script1",
+        "dirname": "script1"
+      }
     },
     {
-      "name": "script2.sh",
+      "path": "script2.sh",
       "enabled": true,
       "args": ["arg1"],
-      "frequency": "*/10 * * * *"
+      "frequency": "*/10 * * * * *"
     },
     {
-      "name": "script3.js",
+      "path": "script3.js",
       "enabled": true,
       "args": [],
       "frequency": "*/5 * * * * *"
     }
-  ]
+  ],
+  "logSettings": {
+    "baseDir": "/vol1/logs/qrsyscron"
+  }
 }

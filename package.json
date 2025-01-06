@@ -2,13 +2,15 @@
   "name": "node-agent",
   "version": "1.0.0",
   "description": "Node.js-based agent application for executing scripts.",
-  "main": "src/agent.js",
+  "main": "src/index.js",
   "scripts": {
     "test": "jest tests/",
-    "start": "node src/agent.js"
+    "start": "node src/index.js"
   },
   "dependencies": {
-    "node-cron": "^3.0.0"
+    "node-cron": "^3.0.0",
+    "winston": "^3.17.0",
+    "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
     "jest": "^27.0.0"

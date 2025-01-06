@@ -14,7 +14,6 @@ function getAbsolutePath(name) {
 // Helper function to create example files with random names
 function createExampleFiles() {
     const randomSuffix = generateRandomString(5);
-    // add file name file too?
     const exampleFiles = [
         {
             name: randomSuffix + '.js',
@@ -94,5 +93,15 @@ describe('Agent Script Execution', () => {
         await expect(executeScript(failingScript, []))
             .rejects
             .toThrow();
+    });
+
+    test('should log execution messages', async () => {
+        const script = exampleFiles.find(file => file.endsWith('.js')); // Get the random JS file
+        const consoleSpy = jest.spyOn(console, 'log').mockImplementation(); // Mock console.log
+
+        await executeScript(script, []);
+        
+        expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Executing:'));
+        consoleSpy.mockRestore(); // Restore original console.log
     });
 });
