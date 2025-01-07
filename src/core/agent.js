@@ -1,13 +1,11 @@
 const { exec } = require('child_process');
 const cron = require('node-cron');
-const path = require('path');
+const pathUtil = require('path');
 
+const getAbsolutePath = ({ path, defaultScriptDir }) =>
+    path.startsWith('/') ? path : pathUtil.join(defaultScriptDir, path);
 
-function getAbsolutePath({ path, defaultScriptDir }) {
-    return path.startsWith('/') ? path : path.join(defaultScriptDir, path);
-}
-
-function executeScript({ script, options, helpers }) {
+const executeScript = ({ script, options, helpers }) => {
     return new Promise((resolve, reject) => {
 
         const { path: scriptPath, args, logSettings } = script;
@@ -16,7 +14,7 @@ function executeScript({ script, options, helpers }) {
         const { makeLogger } = helpers;
 
         const logFilenamePrefix = logSettings?.filenamePrefix || scriptPath.split('/').pop()
-        const logDir = path.join(baseLogSettings.baseDir, logSettings?.dirname || logFilenamePrefix.split('.').shift());
+        const logDir = pathUtil.join(baseLogSettings.baseDir, logSettings?.dirname || logFilenamePrefix.split('.').shift());
 
 
         const logger = makeLogger({ dirPath: logDir, filenamePrefix: logFilenamePrefix });
@@ -73,7 +71,8 @@ const makeAgent = ({ config, appLogger, helpers }) => {
                     executeScript({
                         script: scriptConfig,
                         options: {
-                            baseLogSettings: config.logSettings
+                            baseLogSettings: config.logSettings,
+                            defaultScriptDir: config.defaultScriptDir
                         },
                         helpers: {
                             makeLogger
