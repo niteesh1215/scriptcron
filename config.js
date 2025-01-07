@@ -21,12 +21,6 @@ module.exports = {
       "enabled": true,
       "args": [],
       "frequency": "*/5 * * * * *"
-    },
-    {
-      "path": "/home/niteesh_mahato/iticks/projects/qrsyscron/niteesh.js",
-      "enabled": true,
-      "args": [],
-      "frequency": "*/5 * * * * *"
     }
   ],
   "logSettings": {
