@@ -1,6 +1,6 @@
 const path = require('path');   
 
-process.env.QR_SYS_CRON_PATH = path.join(__dirname, '../config.json')
+process.env.QR_SYS_CRON_PATH = path.join(__dirname, '../config.js')
 
 const { loadConf, ensurePath } = require('./core/utils/app.util');
 const { confPath, defaultConf } = require('./core/constants');
@@ -9,8 +9,6 @@ const { makeAgent } = require('./core/agent');
 
 
 const makeApp = () => {
-
-    console.log(__dirname, __filename)
 
     if (!confPath) throw new Error('QR_SYS_CRON_PATH environment variable is required')
 

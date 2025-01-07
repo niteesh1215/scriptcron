@@ -5,13 +5,13 @@ const path = require('path');
 function executeScript({ script, options, helpers }) {
     return new Promise((resolve, reject) => {
 
-        const { path:scriptPath, args, logSettings } = script;
+        const { path: scriptPath, args, logSettings } = script;
 
         const { baseLogSettings } = options;
         const { makeLogger } = helpers;
 
         const logFilenamePrefix = logSettings?.filenamePrefix || scriptPath.split('/').pop()
-        const logDir = path.join(baseLogSettings.baseDir, logSettings.dirname || logFilenamePrefix.split('.').shift());
+        const logDir = path.join(baseLogSettings.baseDir, logSettings?.dirname || logFilenamePrefix.split('.').shift());
 
 
         const logger = makeLogger({ dirPath: logDir, filenamePrefix: logFilenamePrefix });
@@ -26,12 +26,19 @@ function executeScript({ script, options, helpers }) {
             return reject(new Error(errorMessage));
         }
 
+        console.log('##**************', __dirname)
+
+        const updatedScriptPath = path.join(__dirname, '../../scripts', scriptPath);
+
+
+
         // Construct the command with arguments
-        const command = `${isJavaScript ? 'node' : isPython ? 'python' : 'bash'} ${scriptPath} ${args.join(' ')}`;
+        const command = `${isJavaScript ? 'node' : isPython ? 'python' : 'bash'} ${updatedScriptPath} ${args.join(' ')}`;
 
         logger.info(`Executing: ${command}`);
 
         const child = exec(command, (error, stdout, stderr) => {
+            console.log('*************', error, stdout, stderr)
             if (error) {
                 logger.error(`Error: message=${error.message} stack=${error.stack}`);
                 reject(error);
@@ -74,7 +81,7 @@ const makeAgent = ({ config, appLogger, helpers }) => {
                         }
                     })
                         .then(output => logger.info(`Executed ${scriptConfig.path} successfully.`))
-                        .catch(err => logger.error(`Failed to execute ${scriptConfig.path}: ${err.message}`));
+                        .catch(err => logger.error(`Failed to execute ${scriptConfig.path}: message=${err.message} stack=${err.stack}`));
                 });
                 scheduledTasks.push(task);
             } catch (error) {

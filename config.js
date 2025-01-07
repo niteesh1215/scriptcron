@@ -1,11 +1,11 @@
-{
+module.exports = {
   "scripts": [
     {
       "path": "script1.sh",
       "enabled": true,
       "args": ["arg1", "arg2"],
       "frequency": "*/5 * * * * *",
-      "logSettings":{
+      "logSettings": {
         "filenamePrefix": "script1",
         "dirname": "script1"
       }
