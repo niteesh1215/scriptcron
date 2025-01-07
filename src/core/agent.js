@@ -2,12 +2,17 @@ const { exec } = require('child_process');
 const cron = require('node-cron');
 const path = require('path');
 
+
+function getAbsolutePath({ path, defaultScriptDir }) {
+    return path.startsWith('/') ? path : path.join(defaultScriptDir, path);
+}
+
 function executeScript({ script, options, helpers }) {
     return new Promise((resolve, reject) => {
 
         const { path: scriptPath, args, logSettings } = script;
 
-        const { baseLogSettings } = options;
+        const { baseLogSettings, defaultScriptDir } = options;
         const { makeLogger } = helpers;
 
         const logFilenamePrefix = logSettings?.filenamePrefix || scriptPath.split('/').pop()
@@ -17,28 +22,22 @@ function executeScript({ script, options, helpers }) {
         const logger = makeLogger({ dirPath: logDir, filenamePrefix: logFilenamePrefix });
 
         const isJavaScript = scriptPath.endsWith('.js');
-        const isPython = scriptPath.endsWith('.py');
         const isShell = scriptPath.endsWith('.sh');
 
-        if (!isJavaScript && !isPython && !isShell) {
+        if (!isJavaScript && !isShell) {
             const errorMessage = `Unsupported file format: ${scriptPath}`;
             logger.error(errorMessage);
             return reject(new Error(errorMessage));
         }
 
-        console.log('##**************', __dirname)
-
-        const updatedScriptPath = path.join(__dirname, '../../scripts', scriptPath);
-
-
+        const absoluteScriptPath = getAbsolutePath({ path: scriptPath, defaultScriptDir });
 
         // Construct the command with arguments
-        const command = `${isJavaScript ? 'node' : isPython ? 'python' : 'bash'} ${updatedScriptPath} ${args.join(' ')}`;
+        const command = `${isJavaScript ? 'node' : 'bash'} ${absoluteScriptPath} ${args.join(' ')}`;
 
         logger.info(`Executing: ${command}`);
 
         const child = exec(command, (error, stdout, stderr) => {
-            console.log('*************', error, stdout, stderr)
             if (error) {
                 logger.error(`Error: message=${error.message} stack=${error.stack}`);
                 reject(error);

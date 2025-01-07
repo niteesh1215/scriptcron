@@ -25,5 +25,6 @@ module.exports = {
   ],
   "logSettings": {
     "baseDir": "/vol1/logs/qrsyscron"
-  }
+  },
+  "defaultScriptDir": __dirname + '/scripts'
 }
