@@ -1,9 +1,9 @@
-
 const fs = require('fs');
 const winston = require('winston');
 const { isTestEnv } = require('../constants');
 require('winston-daily-rotate-file');
 
+const { DailyRotateFile } = require('winston-daily-rotate-file');
 
 const makeLogger = ({ dirPath, filenamePrefix, options = { isTestEnv: true } }) => {
     if (!fs.existsSync(dirPath)) {
@@ -14,7 +14,7 @@ const makeLogger = ({ dirPath, filenamePrefix, options = { isTestEnv: true } }) 
 
     const transport = isTestEnv
         ? new winston.transports.Console()
-        : new winston.transports.DailyRotateFile({
+        : new DailyRotateFile({
             filename: `${filenamePrefix}-%DATE%.log`,
             dirname: dirPath,
             datePattern: 'YYYY-MM-DD',
@@ -24,7 +24,7 @@ const makeLogger = ({ dirPath, filenamePrefix, options = { isTestEnv: true } }) 
         });
 
     return winston.createLogger({
-        level: 'info',
+        level: 'error',
         format: winston.format.json(),
         transports: [
             transport,
@@ -35,7 +35,3 @@ const makeLogger = ({ dirPath, filenamePrefix, options = { isTestEnv: true } }) 
 module.exports = {
     makeLogger,
 }
-
-
-const logger = makeLogger({ dirPath: './logs', filenamePrefix: 'qrsyscronapp' });
-
