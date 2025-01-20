@@ -11,7 +11,7 @@ module.exports = {
       }
     },
     {
-      "path": "script2.sh",
+      "path": "/scriptscript2.sh",
       "enabled": true,
       "args": ["arg1"],
       "frequency": "*/10 * * * * *"

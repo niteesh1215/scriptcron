@@ -32,15 +32,35 @@ This application is a Node.js-based agent that periodically executes scripts bas
 ## Configuration Guide
 Update the `config.json` file to define the scripts to be executed:
 ```json
-{
+module.exports = {
   "scripts": [
     {
-      "name": "script1.sh",
+      "path": "script1.sh",
       "enabled": true,
       "args": ["arg1", "arg2"],
-      "frequency": "*/5 * * * *"
+      "frequency": "*/5 * * * * *",
+      "logSettings": {
+        "filenamePrefix": "script1",
+        "dirname": "script1"
+      }
+    },
+    {
+      "path": "/scriptscript2.sh",
+      "enabled": true,
+      "args": ["arg1"],
+      "frequency": "*/10 * * * * *"
+    },
+    {
+      "path": "script3.js",
+      "enabled": true,
+      "args": [],
+      "frequency": "*/5 * * * * *"
     }
-  ]
+  ],
+  "logSettings": {
+    "baseDir": "/vol1/logs/qrsyscron"
+  },
+  "defaultScriptDir": __dirname + '/scripts'
 }
 ```
 
@@ -48,6 +68,7 @@ Update the `config.json` file to define the scripts to be executed:
 Run the agent using:
 ```bash
 node src/agent.js
+process.env.QR_SYS_CRON_PATH = path.join(__dirname, '../config.js')
 ```
 
 ## Logs

@@ -1,7 +1,4 @@
-const path = require('path');   
-
-process.env.QR_SYS_CRON_PATH = path.join(__dirname, '../config.js')
-
+const path = require('path');  
 const { loadConf, ensurePath } = require('./core/utils/app.util');
 const { confPath, defaultConf } = require('./core/constants');
 const { makeLogger } = require('./core/utils/logger.utils');

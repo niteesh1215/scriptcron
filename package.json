@@ -1,7 +1,7 @@
 {
   "name": "node-agent",
   "version": "1.0.0",
-  "description": "Node.js-based agent application for executing scripts.",
+  "description": "Node.js-based cron scheduler",
   "main": "src/index.js",
   "scripts": {
     "test": "jest tests/",
