@@ -1,5 +1,5 @@
 {
-  "name": "node-agent",
+  "name": "scriptcron",
   "version": "1.0.0",
   "description": "Node.js-based cron scheduler",
   "main": "src/index.js",
