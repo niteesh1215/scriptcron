@@ -1,30 +1,14 @@
 module.exports = {
   "scripts": [
     {
-      "path": "script1.sh",
+      "path": "test.sh",
       "enabled": true,
       "args": ["arg1", "arg2"],
-      "frequency": "*/5 * * * * *",
-      "logSettings": {
-        "filenamePrefix": "script1",
-        "dirname": "script1"
-      }
-    },
-    {
-      "path": "/scriptscript2.sh",
-      "enabled": true,
-      "args": ["arg1"],
-      "frequency": "*/10 * * * * *"
-    },
-    {
-      "path": "script3.js",
-      "enabled": true,
-      "args": [],
       "frequency": "*/5 * * * * *"
     }
   ],
   "logSettings": {
-    "baseDir": "/vol1/logs/qrsyscron"
+    "baseDir": "/vol1/logs/scriptcron"
   },
-  "defaultScriptDir": __dirname + '/scripts'
+  "defaultScriptDir": __dirname
 }

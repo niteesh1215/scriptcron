@@ -1,6 +1,8 @@
 const { exec } = require('child_process');
 const cron = require('node-cron');
 const pathUtil = require('path');
+const { isProdEnv } = require('./constants')
+
 
 const getAbsolutePath = ({ path, defaultScriptDir }) =>
     path.startsWith('/') ? path : pathUtil.join(defaultScriptDir, path);
@@ -17,7 +19,7 @@ const executeScript = ({ script, options, helpers }) => {
         const logDir = pathUtil.join(baseLogSettings.baseDir, logSettings?.dirname || logFilenamePrefix.split('.').shift());
 
 
-        const logger = makeLogger({ dirPath: logDir, filenamePrefix: logFilenamePrefix });
+        const logger = makeLogger({ dirPath: logDir, filenamePrefix: logFilenamePrefix, options: { useConsoleLog: !isProdEnv } });
 
         const isJavaScript = scriptPath.endsWith('.js');
         const isShell = scriptPath.endsWith('.sh');
@@ -83,6 +85,7 @@ const makeAgent = ({ config, appLogger, helpers }) => {
                 });
                 scheduledTasks.push(task);
             } catch (error) {
+                console.log('**************', error)
                 logger.error(`Error scheduling ${scriptConfig.name}: ${error.message}`);
             }
         }

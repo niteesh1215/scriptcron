@@ -1,18 +1,17 @@
 const fs = require('fs');
 const winston = require('winston');
-const { isTestEnv } = require('../constants');
 require('winston-daily-rotate-file');
 
 const { DailyRotateFile } = require('winston-daily-rotate-file');
 
-const makeLogger = ({ dirPath, filenamePrefix, options = { isTestEnv: true } }) => {
+const makeLogger = ({ dirPath, filenamePrefix, options = { useConsoleLog: true } }) => {
     if (!fs.existsSync(dirPath)) {
         fs.mkdirSync(dirPath, { recursive: true }); // Create parent directories if needed
     }
 
-    const isTestEnv = options.isTestEnv;
+    const useConsoleLog = options.useConsoleLog;
 
-    const transport = isTestEnv
+    const transport = useConsoleLog
         ? new winston.transports.Console()
         : new DailyRotateFile({
             filename: `${filenamePrefix}-%DATE%.log`,
@@ -24,7 +23,6 @@ const makeLogger = ({ dirPath, filenamePrefix, options = { isTestEnv: true } }) 
         });
 
     return winston.createLogger({
-        level: 'error',
         format: winston.format.json(),
         transports: [
             transport,

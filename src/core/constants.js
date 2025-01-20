@@ -1,5 +1,5 @@
 
-const isTestEnv = process.env.NODE_ENV === 'test';
+const isProdEnv = process.env.NODE_ENV === 'production';
 
 const defaultConf = {
     logSettings: {
@@ -8,7 +8,6 @@ const defaultConf = {
 }
 
 module.exports = {
-    isTestEnv,
-    confPath,
+    isProdEnv,
     defaultConf,
 }
