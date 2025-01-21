@@ -5,6 +5,12 @@ module.exports = {
       "enabled": true,
       "args": ["arg1", "arg2"],
       "frequency": "*/5 * * * * *"
+    },
+    {
+      "path": "test.js",
+      "enabled": true,
+      "args": ["arg1", "arg2"],
+      "frequency": "*/5 * * * * *"
     }
   ],
   "logSettings": {

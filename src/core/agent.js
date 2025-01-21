@@ -37,17 +37,16 @@ const executeScript = ({ script, options, helpers }) => {
 
         logger.info(`Executing: ${command}`);
 
-        const child = exec(command, (error, stdout, stderr) => {
+        const child = exec(command, (error) => {
             if (error) {
                 logger.error(`Error: message=${error.message} stack=${error.stack}`);
                 reject(error);
+                logger.close()
+                return;
             }
-            if (stderr) {
-                logger.error(`stderr: ${stderr}`);
-            }
-            logger.info(`stdout: ${stdout}`);
+
             logger.close()
-            resolve(stdout);
+            resolve()
         });
 
         child.stdout.on('data', (data) => {
@@ -80,12 +79,11 @@ const makeAgent = ({ config, appLogger, helpers }) => {
                             makeLogger
                         }
                     })
-                        .then(output => logger.info(`Executed ${scriptConfig.path} successfully.`))
-                        .catch(err => logger.error(`Failed to execute ${scriptConfig.path}: message=${err.message} stack=${err.stack}`));
+                        .then(() => logger.info(`Executed ${scriptConfig.path} successfully.`))
+                        .catch(err => logger.error(`Failed to execute ${scriptConfig.path}`));
                 });
                 scheduledTasks.push(task);
             } catch (error) {
-                console.log('**************', error)
                 logger.error(`Error scheduling ${scriptConfig.name}: ${error.message}`);
             }
         }
