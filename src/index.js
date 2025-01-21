@@ -5,7 +5,7 @@ const { makeLogger } = require('./core/utils/logger.utils');
 const { makeAgent } = require('./core/agent');
 
 
-const makeApp = ({ configPath }) => {
+const makeScriptCronAgent = ({ configPath }) => {
     if (!configPath) throw new Error('configPath is required')
     if (typeof configPath !== 'string') throw new Error('configPath should be a string')
 
@@ -33,5 +33,5 @@ const makeApp = ({ configPath }) => {
 }
 
 module.exports = {
-    makeApp,
+    makeScriptCronAgent
 }
