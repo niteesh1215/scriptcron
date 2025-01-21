@@ -1,4 +1,3 @@
-const path = require('path');
 const { loadConf, ensurePath } = require('./core/utils/app.util');
 const { defaultConf, isProdEnv } = require('./core/constants');
 const { makeLogger } = require('./core/utils/logger.utils');
