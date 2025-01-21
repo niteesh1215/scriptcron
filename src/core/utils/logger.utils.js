@@ -2,7 +2,7 @@ const fs = require('fs');
 const winston = require('winston');
 require('winston-daily-rotate-file');
 
-const { DailyRotateFile } = require('winston-daily-rotate-file');
+const DailyRotateFile = require('winston-daily-rotate-file');
 
 const makeLogger = ({ dirPath, filenamePrefix, options = { useConsoleLog: true } }) => {
     if (!fs.existsSync(dirPath)) {
