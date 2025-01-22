@@ -47,13 +47,10 @@ const makeScriptCronAgent = ({ configPath }) => {
 
     const logTo = config.logSettings.logTo
 
-    console.log('*********###', config.logSettings)
-
     if (logTo === 'file') {
         // Create logs directory if it doesn't exist
         ensurePath(config.logSettings.baseDir)
     }
-
 
     const appLogger = makeLogger({ dirPath: config.logSettings.baseDir, filenamePrefix: 'scriptcron', options: { logTo } });
 
