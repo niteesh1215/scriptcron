@@ -41,7 +41,7 @@ const makeLogger = ({ dirPath, filenamePrefix, options = { logTo: 'none' } }) =>
     transport.silent = logTo === 'none';
 
     return winston.createLogger({
-        format: winston.format.json(),
+        format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
         transports: [
             transport,
         ],
