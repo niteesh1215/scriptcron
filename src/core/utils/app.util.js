@@ -9,7 +9,7 @@ const ensurePath = (path) => {
 
 const loadConf = (confPath, defaultConf = {}) => {
     const providedConf = require(confPath);
-    return Object.assign(defaultConf, providedConf);
+    return Object.assign({}, defaultConf, providedConf);
 }
 
 

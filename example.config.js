@@ -14,7 +14,8 @@ module.exports = {
     }
   ],
   "logSettings": {
-    "baseDir": "/vol1/logs/scriptcron"
+    "logTo": 'console', // 'none', 'file', or 'console'
+    // "baseDir": "/vol1/logs/scriptcron" // base directory for logs, required if logTo is 'file'
   },
   "defaultScriptDir": __dirname
 }

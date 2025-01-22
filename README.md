@@ -1,84 +1,80 @@
-# Node.js Agent Application
+# scriptcron
 
-## Project Overview
-This application is a Node.js-based agent that periodically executes scripts based on a configuration file. It supports dynamic arguments, schedules tasks using cron expressions, and logs both agent activity and script outputs to dedicated log files.
+## Description
+Node.js-based cron scheduler.
 
-## Directory Structure
-```
-/project-root
-├── src/                # Main application code
-│   ├── agent.js        # Main agent script
-│   └── scripts/        # Directory to store example shell scripts
-│       ├── script1.sh
-│       └── script2.sh
-├── tests/              # Directory for test files
-│   ├── agent.test.js    # Tests for the main agent
-│   ├── script1.test.js   # Tests for script1
-│   └── script2.test.js   # Tests for script2
-├── logs/               # Directory for script-specific log files
-├── config.json         # Configuration file for script details
-├── .gitignore          # Git ignore file
-└── README.md           # Project documentation
+
+## Usage
+1. Install from npm:
+```bash
+npm install scriptcron
 ```
 
-## Installation
-1. Clone the repository.
-2. Navigate to the project directory.
-3. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-## Configuration Guide
-Update the `config.json` file to define the scripts to be executed:
-```json
+2. Create configuration file
+// config.js
+```javascript
 module.exports = {
   "scripts": [
     {
-      "path": "script1.sh",
+      "path": "test.sh",
       "enabled": true,
       "args": ["arg1", "arg2"],
-      "frequency": "*/5 * * * * *",
-      "logSettings": {
-        "filenamePrefix": "script1",
-        "dirname": "script1"
-      }
+      "frequency": "*/5 * * * * *" // every 5 seconds
     },
     {
-      "path": "/scriptscript2.sh",
+      "path": "test.js",
       "enabled": true,
-      "args": ["arg1"],
-      "frequency": "*/10 * * * * *"
-    },
+      "args": ["arg1", "arg2"],
+      "frequency": "*/5 * * * *" // every 5 minutes
+    }
     {
-      "path": "script3.js",
+      "path": "/vol/scripts/example.js",
       "enabled": true,
-      "args": [],
-      "frequency": "*/5 * * * * *"
+      "args": ["arg1", "arg2"],
+      "frequency": "*/10 * * * *" // every 10 minutes
     }
   ],
-  "logSettings": {
-    "baseDir": "/vol1/logs/qrsyscron"
+  "logSettings": { // optional
+    "logTo": "console", // none, console, file
+    "baseDir": "/vol1/logs/scriptcron" // log directory
   },
-  "defaultScriptDir": __dirname + '/scripts'
+  "defaultScriptDir": __dirname // optional, directory to look for script incase of non absolute path
 }
 ```
+3. Import and run the scheduler
 
-## Usage
-Run the agent using:
-```bash
-node src/agent.js
-process.env.QR_SYS_CRON_PATH = path.join(__dirname, '../config.js')
+```javascript
+const { makeScriptCronAgent } = require('scriptcron');
+const path = require('path');
+
+// Function to resolve the configuration path
+const resolveConfigPath = (configPath) => {
+    return path.isAbsolute(configPath)
+        ? configPath // Use absolute path directly
+        : path.resolve(process.cwd(), configPath); // Resolve relative path to absolute
+};
+
+  // Get the config path from the command-line arguments or use a default
+  const configPath = process.argv[3]
+  if (!configPath) throw new Error('Config file path is required');
+
+  const resolvedConfigPath = resolveConfigPath(configPath);
+
+  console.log(`Using config file: ${resolvedConfigPath}`);
+
+  // Create the app with the resolved config path
+  const agent = makeScriptCronAgent({ configPath: resolvedConfigPath });
+
+  // Handle graceful shutdown on SIGINT
+  process.on('SIGINT', () => {
+      agent.stop();
+      process.exit(0);
+  });
+
 ```
 
-## Logs
-Logs are saved in the `logs/` directory (e.g., `script1.sh.log`).
+## Contributing
+Feel free to submit issues and pull requests.
 
-## Testing
-To run the tests, use the following command:
-```bash
-npm test
-```
-
-## Example Scripts
-Include sample shell scripts in the `/src/scripts` directory.
+## License
+This project is licensed under the ISC License.
