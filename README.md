@@ -11,8 +11,8 @@ npm install scriptcron
 ```
 
 2. Create configuration file
-// config.js
 ```javascript
+// config.js
 module.exports = {
   "scripts": [
     {
@@ -44,33 +44,21 @@ module.exports = {
 3. Import and run the scheduler
 
 ```javascript
+// main.js
 const { makeScriptCronAgent } = require('scriptcron');
 const path = require('path');
 
-// Function to resolve the configuration path
-const resolveConfigPath = (configPath) => {
-    return path.isAbsolute(configPath)
-        ? configPath // Use absolute path directly
-        : path.resolve(process.cwd(), configPath); // Resolve relative path to absolute
-};
+const agent = makeScriptCronAgent({ configPath: path.join(__dirname, './example.config.js') });
 
-  // Get the config path from the command-line arguments or use a default
-  const configPath = process.argv[3]
-  if (!configPath) throw new Error('Config file path is required');
-
-  const resolvedConfigPath = resolveConfigPath(configPath);
-
-  console.log(`Using config file: ${resolvedConfigPath}`);
-
-  // Create the app with the resolved config path
-  const agent = makeScriptCronAgent({ configPath: resolvedConfigPath });
-
-  // Handle graceful shutdown on SIGINT
-  process.on('SIGINT', () => {
-      agent.stop();
-      process.exit(0);
-  });
-
+// Handle graceful shutdown on SIGINT
+process.on('SIGINT', () => {
+    agent.stop();
+    process.exit(0);
+});
+```
+4. Run the script
+```bash
+node main.js
 ```
 
 ## Contributing
