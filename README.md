@@ -1,68 +1,97 @@
 # scriptcron
 
-## Description
-Node.js-based cron scheduler.
+## What is scriptcron?
+**scriptcron** is a simple, no-fuss tool to schedule and run scripts based on a configuration file. Whether you need to run shell scripts or JavaScript files on a regular schedule, scriptcron has you covered. Plus, it comes with built-in logging and graceful shutdown support, so everything runs smoothly.
 
+---
 
-## Usage
-1. Install from npm:
+## Why use scriptcron?
+- **Easy scheduling**: Use familiar cron expressions to set up jobs.  
+- **Run any script**: Supports shell scripts, JavaScript files, and customizable arguments.  
+- **Customizable logging**: Log to the console, files, or turn it off entirely.  
+- **Graceful stops**: Cleanly shuts down all jobs when the process ends.  
+
+---
+
+## Getting Started
+
+### Step 1: Install the package
+First, install **scriptcron** using npm:
+
 ```bash
 npm install scriptcron
 ```
 
-2. Create configuration file
+---
+
+### Step 2: Set up your configuration
+Create a file to define your jobs and logging preferences. Here's an example:
+
+#### Example `config.js`:
 ```javascript
-// config.js
 module.exports = {
-  "scripts": [
+  scripts: [
     {
-      "path": "test.sh",
-      "enabled": true,
-      "args": ["arg1", "arg2"],
-      "frequency": "*/5 * * * * *" // every 5 seconds
+      path: "test.sh", // A shell script
+      enabled: true,   // Turn this job on or off
+      args: ["arg1", "arg2"], // Arguments for the script
+      frequency: "*/5 * * * * *" // Every 5 seconds
     },
     {
-      "path": "test.js",
-      "enabled": true,
-      "args": ["arg1", "arg2"],
-      "frequency": "*/5 * * * *" // every 5 minutes
-    }
+      path: "test.js", // A JavaScript file
+      enabled: true,
+      args: ["arg1", "arg2"],
+      frequency: "*/5 * * * *" // Every 5 minutes
+    },
     {
-      "path": "/vol/scripts/example.js", // absolute path example
-      "enabled": true,
-      "args": ["arg1", "arg2"],
-      "frequency": "*/10 * * * *" // every 10 minutes
+      path: "/vol/scripts/example.js", // Absolute path example
+      enabled: true,
+      args: ["arg1", "arg2"],
+      frequency: "*/10 * * * *" // Every 10 minutes
     }
   ],
-  "logSettings": { // optional
-    "logTo": "file", // none, console, file
-    "baseDir": "/vol1/logs/scriptcron" // log directory
+  logSettings: { // Optional
+    logTo: "file", // Options: "none", "console", "file"
+    baseDir: "/vol1/logs/scriptcron" // Where to store log files
   },
-  "defaultScriptDir": __dirname // optional, directory to look for script incase of non absolute path
-}
+  defaultScriptDir: __dirname // Where to look for relative script paths
+};
 ```
-3. Import and run the scheduler
 
+---
+
+### Step 3: Run the scheduler
+Create a simple script to start the agent and load your configuration:
+
+#### Example `main.js`:
 ```javascript
-// main.js
 const { makeScriptCronAgent } = require('scriptcron');
 const path = require('path');
 
-const agent = makeScriptCronAgent({ configPath: path.join(__dirname, './example.config.js') });
+const agent = makeScriptCronAgent({ configPath: path.join(__dirname, './config.js') });
 
-// Handle graceful shutdown on SIGINT
+// Graceful shutdown when you stop the process
 process.on('SIGINT', () => {
+    console.log("Shutting down...");
     agent.stop();
     process.exit(0);
 });
 ```
-4. Run the script
+
+Run it with Node.js:
+
 ```bash
 node main.js
 ```
 
+And that's it! Your scripts will now run on the schedule you defined.
+
+---
+
 ## Contributing
-Feel free to submit issues and pull requests.
+We’d love your help to make scriptcron even better! Found a bug? Have an idea? Open an issue or send us a pull request on GitHub.
+
+---
 
 ## License
-This project is licensed under the ISC License.
+**scriptcron** is licensed under the ISC License. Do whatever you like with it—just give credit where it’s due.
