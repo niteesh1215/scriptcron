@@ -48,7 +48,7 @@ module.exports = {
 const { makeScriptCronAgent } = require('scriptcron');
 const path = require('path');
 
-const agent = makeScriptCronAgent({ configPath: path.join(__dirname, './example.config.js') });
+const agent = makeScriptCronAgent({ configPath: path.join(__dirname, './config.js') });
 
 // Handle graceful shutdown on SIGINT
 process.on('SIGINT', () => {
