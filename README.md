@@ -28,7 +28,7 @@ module.exports = {
       "frequency": "*/5 * * * *" // every 5 minutes
     }
     {
-      "path": "/vol/scripts/example.js",
+      "path": "/vol/scripts/example.js", // absolute path example
       "enabled": true,
       "args": ["arg1", "arg2"],
       "frequency": "*/10 * * * *" // every 10 minutes
