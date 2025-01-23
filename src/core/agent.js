@@ -3,7 +3,7 @@
  * This module exports a function to create an agent that executes scripts based on a schedule.
  */
 
-const { exec } = require('child_process');
+const { spawn } = require('child_process');
 const cron = require('node-cron');
 const pathUtil = require('path');
 
@@ -55,29 +55,30 @@ const executeScript = ({ script, options, helpers }) => {
             const absoluteScriptPath = getAbsolutePath({ path: scriptPath, defaultScriptDir });
 
             // Construct the command with arguments
-            const command = `${isJavaScript ? 'node' : 'bash'} ${absoluteScriptPath} ${args.join(' ')}`;
+            const command = isJavaScript ? 'node' : 'bash';
 
-            logger.info(`Executing: ${command}`);
+            logger.info(`Executing: ${command} ${absoluteScriptPath} ${args.join(' ')}`);
 
-            const child = exec(command, (error) => {
-                if (error) {
-                    logger.error(`Error: message=${error.message} stack=${error.stack}`);
-                    reject(error);
-                    logger.close();
-                    return;
-                }
-
-                logger.close();
-                resolve();
-            });
+            const child = spawn(command, [absoluteScriptPath, ...args]);
 
             child.stdout.on('data', (data) => {
-                logger.info(data);
+                logger.info(data.toString());
             });
 
             child.stderr.on('data', (data) => {
-                logger.error(data);
+                logger.error(data.toString());
             });
+
+            child.on('close', (code) => {
+                if (code !== 0)
+                    return reject(new Error(`Script execution failed with code ${code}`));
+
+                resolve();
+            })
+
+            child.on('error', (error) => {
+                logger.error(`Error executing script: msg=${error.message} stack=${error.stack}`);
+            })
         } catch (err) {
             reject(err);
         }
