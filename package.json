@@ -1,6 +1,6 @@
 {
   "name": "scriptcron",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Node.js-based cron scheduler",
   "main": "src/index.js",
   "scripts": {
